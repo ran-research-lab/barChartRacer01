@@ -1,7 +1,6 @@
 
 #include "LTexture.h"
-
-
+#include <iostream>
 
 LTexture::LTexture(SDL_Renderer* r)
 {
@@ -65,7 +64,7 @@ bool LTexture::loadFromRenderedText( std::string textureText, SDL_Color textColo
 	free();
 
 	//Render text surface
-	SDL_Surface* textSurface = TTF_RenderText_Solid( gFont, textureText.c_str(), textColor );
+	SDL_Surface* textSurface = TTF_RenderText_Blended( gFont, textureText.c_str(), textColor );
 	if( textSurface == NULL )
 	{
 		printf( "Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError() );
@@ -133,7 +132,9 @@ void LTexture::render( int x, int y, SDL_Rect* clip, double angle, SDL_Point* ce
 	{
 		renderQuad.w = clip->w;
 		renderQuad.h = clip->h;
+
 	}
+//    std::cout << "w,h: " << renderQuad.w << ", " << renderQuad.h << std::endl;
 
 	//Render to screen
 	SDL_RenderCopyEx( gRenderer, mTexture, clip, &renderQuad, angle, center, flip );

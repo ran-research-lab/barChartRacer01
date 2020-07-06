@@ -11,7 +11,7 @@ and may not be redistributed without written permission.*/
 #include <vector>
 #include <iostream>
 #include "LTexture.h"
-
+#include <string>
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 640;
@@ -35,7 +35,9 @@ SDL_Window* gWindow = NULL;
 SDL_Renderer* gRenderer = NULL;
 
 //Globally used font
+TTF_Font *gFontTiny = NULL;
 TTF_Font *gFont = NULL;
+TTF_Font *gFontBig = NULL;
 
 //Rendered texture
 // LTexture gTextTexture;
@@ -107,14 +109,32 @@ bool loadMedia() {
 		printf( "Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError() );
 		success = false;
 	}
-	return success;
+//	return success;
+
+    gFontBig = TTF_OpenFont( "16_true_type_fonts/DejaVuSans.ttf", 40 );
+    if( gFontBig == NULL ) {
+        printf( "Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError() );
+        success = false;
+    }
+
+    gFontTiny = TTF_OpenFont( "16_true_type_fonts/DejaVuSans.ttf", 10 );
+    if( gFontTiny == NULL ) {
+        printf( "Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError() );
+        success = false;
+    }
+
+    return success;
+
+
 }
 
 void close() {
 
 	//Free global font
 	TTF_CloseFont( gFont );
+    gFontTiny = NULL;
 	gFont = NULL;
+    gFontBig = NULL;
 
 	//Destroy window	
 	SDL_DestroyRenderer( gRenderer );
@@ -129,6 +149,9 @@ void close() {
 }
 
 int colorTable[3][3] = { { 0,0,255},  { 0,255,0}, { 255, 0,0}};
+
+
+
 
 
 // drawRect:
@@ -146,8 +169,38 @@ void drawRect(SDL_Renderer* renderer, int x, int y, int width, int height, const
 	gText.render( width - gText.getWidth() , y );
 }
 
+void drawText(SDL_Renderer* renderer, int x, int y,
+        const SDL_Color& color, std::string txt, TTF_Font *font , int justify = 0){
+    LTexture gText(renderer);
+    gText.loadFromRenderedText( txt, textColor, font );
+    if (justify == 1) x = x - gText.getWidth()/2;
+    else if (justify == 2) x = - gText.getWidth();
+    gText.render( x, y );
+}
+
+void drawXAxis(SDL_Renderer* renderer, int x, int y, int width, int height, int maxX, int tickSeparation) {
+    SDL_SetRenderDrawColor(renderer, 0,0,0, 255);
+    int i = 0;
+    int delta = tickSeparation *   width / static_cast<float>(maxX);
+    int label = 0;
+    int y2 = y + height;
+    int tickHeight = .05 * height;
+    while (i <= width) {
+        SDL_RenderDrawLine(renderer, x + i, y + tickHeight, x + i, y + height );
 
 
+
+        drawText(renderer,x + i, y,
+                SDL_Color {.r= 0, .g = 0x0, .b = 0, .a = 0xff } ,
+                std::to_string(label), gFontTiny, 1);
+        i += delta;
+        label = label + tickSeparation;
+    }
+//    SDL_RenderDrawLine(renderer, x, y + height, x+width, y + height );
+
+}
+
+int gGraphX, gGraphWidth, gGraphY, gGraphHeight, gBarHeight, gBarSpace;
 
 int main( int argc, char* args[] ) {
 	std::vector < std::vector < std::pair<int,std::string> > > data;
@@ -169,6 +222,15 @@ int main( int argc, char* args[] ) {
 	tmp.push_back(std::pair<int,std::string> (60, "PR"));
 	data.push_back(tmp);
 
+
+	gGraphX = SCREEN_WIDTH * .01;
+	gGraphWidth = SCREEN_WIDTH * .98;
+
+	gGraphY = SCREEN_HEIGHT * .2;
+    gGraphHeight = SCREEN_HEIGHT * .8;
+
+    gBarHeight = (gGraphHeight / 50) * 4;
+    gBarSpace =  (gGraphHeight / 50);
 
 	//Start up SDL and create window
 	if( !init() ) {
@@ -212,9 +274,12 @@ int main( int argc, char* args[] ) {
 				int y = 0;
 
 				for (auto e: data[idx]) {
-					drawRect(gRenderer, 0, y, static_cast<int>(SCREEN_WIDTH* (e.first/100.)), static_cast<int>(SCREEN_HEIGHT * .1), SDL_Color {.r= 0, .g = 0xff, .b = 0, .a = 0xff }  ,e.second);
-					y = y + 60;
+					drawRect(gRenderer, gGraphX, gGraphY + y, static_cast<int>(gGraphWidth* (e.first/100.)), gBarHeight,
+					        SDL_Color {.r= 0, .g = 0xff, .b = 0, .a = 0xff }  ,e.second);
+					y = y + gBarHeight + gBarSpace;
+					drawText(gRenderer, 0, 300, SDL_Color {.r= 0, .g = 0x0, .b = 0, .a = 0xff } , std::to_string(idx), gFontBig);
 				}
+                drawXAxis(gRenderer, 50,50,400,600, 800,200);
 
 				//Update screen
 				SDL_RenderPresent( gRenderer );

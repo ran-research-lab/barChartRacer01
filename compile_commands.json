@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/home/rarce/Downloads/16_true_type_fonts",
+  "command": "/usr/bin/c++   -I/usr/include/SDL2    -std=gnu++14 -o CMakeFiles/bars.dir/main.cpp.o -c /home/rarce/Downloads/16_true_type_fonts/main.cpp",
+  "file": "/home/rarce/Downloads/16_true_type_fonts/main.cpp"
+},
+{
+  "directory": "/home/rarce/Downloads/16_true_type_fonts",
+  "command": "/usr/bin/c++   -I/usr/include/SDL2    -std=gnu++14 -o CMakeFiles/bars.dir/LTexture.cpp.o -c /home/rarce/Downloads/16_true_type_fonts/LTexture.cpp",
+  "file": "/home/rarce/Downloads/16_true_type_fonts/LTexture.cpp"
+}
+]
