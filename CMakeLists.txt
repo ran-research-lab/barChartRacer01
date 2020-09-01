@@ -7,6 +7,10 @@ find_path(INCLUDE_DIR NAMES SDL2/SDL.h)
 message("FOUND SDL2 include dir = ${INCLUDE_DIR}")
 
 include_directories(${INCLUDE_DIR}/SDL2)
+include_directories(/Library/Frameworks/SDL2.framework/Headers)
+include_directories(/Library/Frameworks/SDL2_image.framework/Headers)
+include_directories(/Library/Frameworks/SDL2_ttf.framework/Headers)
+
 
 
 # include_directories(/usr/include/SDL2)
